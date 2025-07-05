@@ -1173,8 +1173,14 @@ def WriteOtacerts(output_zip, filename, keys):
   """
   temp_file = io.BytesIO()
   certs_zip = zipfile.ZipFile(temp_file, "w", allowZip64=True)
+
+  # Avoid duplicate .pem files in the zip
+  written = set()
   for k in keys:
-    common.ZipWrite(certs_zip, k)
+    if k not in written:
+      common.ZipWrite(certs_zip, k)
+      written.add(k)
+
   common.ZipClose(certs_zip)
   common.ZipWriteStr(output_zip, filename, temp_file.getvalue())
 
